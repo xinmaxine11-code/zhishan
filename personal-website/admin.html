@@ -300,6 +300,7 @@
     const OWNER = 'xinmaxine11-code';
     const REPO  = 'zhishan';
     const BRANCH = 'main';
+    const BASE_PATH = 'personal-website';
 
     let postsData = { posts: [] };
     let postsSha  = null;
@@ -348,7 +349,7 @@
     }
 
     async function getFile(filePath) {
-      const data = await ghRequest('GET', `/repos/${OWNER}/${REPO}/contents/${filePath}`);
+      const data = await ghRequest('GET', `/repos/${OWNER}/${REPO}/contents/${BASE_PATH}/${filePath}`);
       return {
         content: decodeURIComponent(escape(atob(data.content.replace(/\n/g, '')))),
         sha: data.sha
@@ -359,13 +360,13 @@
       const encoded = btoa(unescape(encodeURIComponent(content)));
       const body = { message, content: encoded, branch: BRANCH };
       if (sha) body.sha = sha;
-      await ghRequest('PUT', `/repos/${OWNER}/${REPO}/contents/${filePath}`, body);
+      await ghRequest('PUT', `/repos/${OWNER}/${REPO}/contents/${BASE_PATH}/${filePath}`, body);
     }
 
     async function uploadImage(filename, arrayBuffer) {
       let sha = null;
       try {
-        const existing = await ghRequest('GET', `/repos/${OWNER}/${REPO}/contents/images/${filename}`);
+        const existing = await ghRequest('GET', `/repos/${OWNER}/${REPO}/contents/${BASE_PATH}/images/${filename}`);
         sha = existing.sha;
       } catch (e) {}
 
@@ -376,7 +377,7 @@
 
       const body = { message: `上传图片 ${filename}`, content: base64, branch: BRANCH };
       if (sha) body.sha = sha;
-      await ghRequest('PUT', `/repos/${OWNER}/${REPO}/contents/images/${filename}`, body);
+      await ghRequest('PUT', `/repos/${OWNER}/${REPO}/contents/${BASE_PATH}/images/${filename}`, body);
     }
 
     // ── 读取帖子 ──
