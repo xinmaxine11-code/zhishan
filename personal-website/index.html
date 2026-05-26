@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>枝山</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html" class="site-name">枝山</a>
+      <div class="nav-right">
+        <a href="about.html">关于</a>
+      </div>
+    </nav>
+  </header>
+  <main id="feed"></main>
+  <script src="app.js"></script>
+  <script>
+    (function () {
+      let count = 0, timer;
+      document.querySelector('.site-name').addEventListener('click', function (e) {
+        e.preventDefault();
+        count++;
+        clearTimeout(timer);
+        if (count >= 5) { count = 0; window.location.href = 'admin.html'; return; }
+        timer = setTimeout(() => { count = 0; window.location.href = 'index.html'; }, 600);
+      });
+    })();
+  </script>
+</body>
+</html>
