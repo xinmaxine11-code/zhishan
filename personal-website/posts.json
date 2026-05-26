@@ -1,16 +1,6 @@
 {
   "posts": [
     {
-      "id": "5",
-      "date": "2026-05-26",
-      "title": "测试",
-      "content": "",
-      "images": [
-        "1779776672566-34b18c27013f1a8d5f6c0a9f07ad6e2f.jpeg"
-      ],
-      "type": "image"
-    },
-    {
       "id": "4",
       "date": "2026-05-26",
       "title": "Ch0 | 序章",
