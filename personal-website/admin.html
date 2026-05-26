@@ -56,7 +56,22 @@
     }
     .back-link:hover { color: var(--accent); }
 
+    /* ── Setup ── */
+    #setup {
+      border: 1px solid var(--border);
+      padding: 36px;
+      margin-bottom: 0;
+    }
+    #setup p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
     /* ── Form ── */
+    #form-section { display: none; }
+
     .form-group { margin-bottom: 30px; }
 
     label {
@@ -70,6 +85,7 @@
 
     input[type="text"],
     input[type="date"],
+    input[type="password"],
     textarea {
       width: 100%;
       background: var(--surface);
@@ -84,14 +100,24 @@
       resize: none;
       -webkit-appearance: none;
     }
-    input[type="text"]:focus,
-    input[type="date"]:focus,
-    textarea:focus { border-color: #3a3a3a; }
+    input:focus, textarea:focus { border-color: #3a3a3a; }
     textarea { min-height: 200px; line-height: 1.75; }
 
     input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(0.4);
       cursor: pointer;
+    }
+
+    /* ── Textarea with char count ── */
+    .textarea-wrap { position: relative; }
+    .char-count {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      pointer-events: none;
+      letter-spacing: 0.04em;
     }
 
     /* ── Image upload ── */
@@ -126,19 +152,6 @@
       width: 22px; height: 22px;
       font-size: 14px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-    }
-
-    /* ── Char count ── */
-    .textarea-wrap { position: relative; }
-    .char-count {
-      position: absolute;
-      bottom: 10px;
-      right: 12px;
-      font-size: 11px;
-      font-family: 'Inter', sans-serif;
-      color: var(--text-muted);
-      pointer-events: none;
-      letter-spacing: 0.04em;
     }
 
     /* ── Buttons ── */
@@ -191,6 +204,11 @@
       color: var(--error);
       border: 1px solid rgba(220,80,80,0.2);
     }
+    #status.loading {
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
 
     .form-actions { display: flex; gap: 12px; margin-top: 40px; }
     .divider { border: none; border-top: 1px solid var(--border); margin: 56px 0; }
@@ -222,64 +240,156 @@
       <a href="index.html" class="back-link">← 返回首页</a>
     </div>
 
-    <div class="form-group">
-      <label>日期</label>
-      <input type="date" id="post-date">
-    </div>
-
-    <div class="form-group">
-      <label>标题（可选）</label>
-      <input type="text" id="post-title" placeholder="留空则不显示标题">
-    </div>
-
-    <div class="form-group">
-      <label>图片（可选，可多选）</label>
-      <div class="upload-area" onclick="document.getElementById('image-input').click()">
-        <p>点击选择图片</p>
-        <input type="file" id="image-input" accept="image/*" multiple onchange="handleImages(this)">
+    <!-- 首次使用：输入 Token -->
+    <div id="setup">
+      <p>首次使用需要输入 GitHub Token，之后会自动记住，无需再次输入。</p>
+      <div class="form-group">
+        <label>GitHub Token</label>
+        <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxxxxxx">
       </div>
-      <div id="image-previews"></div>
+      <button class="btn btn-primary" onclick="saveToken()">确认</button>
     </div>
 
-    <div class="form-group">
-      <label>内容（可选）</label>
-      <div class="textarea-wrap">
-        <textarea id="post-content" placeholder="写点什么…&#10;&#10;空一行代表换段落" oninput="updateCount(this)"></textarea>
-        <span class="char-count" id="char-count">0</span>
+    <!-- 发帖表单 -->
+    <div id="form-section">
+
+      <div class="form-group">
+        <label>日期</label>
+        <input type="date" id="post-date">
       </div>
-    </div>
 
-    <div id="status"></div>
+      <div class="form-group">
+        <label>标题（可选）</label>
+        <input type="text" id="post-title" placeholder="留空则不显示标题">
+      </div>
 
-    <div class="form-actions">
-      <button class="btn btn-primary" id="publish-btn" onclick="publishPost()">发布</button>
-      <button class="btn btn-ghost" onclick="clearForm()">清空</button>
-    </div>
+      <div class="form-group">
+        <label>图片（可选，可多选）</label>
+        <div class="upload-area" onclick="document.getElementById('image-input').click()">
+          <p>点击选择图片</p>
+          <input type="file" id="image-input" accept="image/*" multiple onchange="handleImages(this)">
+        </div>
+        <div id="image-previews"></div>
+      </div>
 
-    <hr class="divider">
+      <div class="form-group">
+        <label>内容（可选）</label>
+        <div class="textarea-wrap">
+          <textarea id="post-content" placeholder="写点什么…&#10;&#10;空一行代表换段落" oninput="updateCount(this)"></textarea>
+          <span class="char-count" id="char-count">0</span>
+        </div>
+      </div>
 
-    <div id="posts-section">
-      <h2>已发布的帖子</h2>
-      <div id="posts-list"></div>
+      <div id="status"></div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" id="publish-btn" onclick="publishPost()">发布</button>
+        <button class="btn btn-ghost" onclick="clearForm()">清空</button>
+      </div>
+
+      <hr class="divider">
+
+      <div id="posts-section">
+        <h2>已发布的帖子</h2>
+        <div id="posts-list"></div>
+      </div>
     </div>
   </div>
 
   <script>
-    let selectedImages = [];
+    const OWNER = 'xinmaxine11-code';
+    const REPO  = 'zhishan';
+    const BRANCH = 'main';
+
     let postsData = { posts: [] };
+    let postsSha  = null;
+    let selectedImages = [];
 
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('post-date').value = today;
 
-    // ── 页面加载时读取帖子 ──
-    async function loadPosts() {
+    // ── 初始化 ──
+    (function init() {
+      const token = localStorage.getItem('gh_token');
+      if (token) {
+        document.getElementById('setup').style.display = 'none';
+        document.getElementById('form-section').style.display = 'block';
+        loadPosts();
+      }
+    })();
+
+    function saveToken() {
+      const token = document.getElementById('token-input').value.trim();
+      if (!token) { alert('请输入 Token'); return; }
+      localStorage.setItem('gh_token', token);
+      document.getElementById('setup').style.display = 'none';
+      document.getElementById('form-section').style.display = 'block';
+      loadPosts();
+    }
+
+    // ── GitHub API ──
+    async function ghRequest(method, path, body = null) {
+      const token = localStorage.getItem('gh_token');
+      const opts = {
+        method,
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        }
+      };
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(`https://api.github.com${path}`, opts);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `HTTP ${res.status}`);
+      }
+      return res.json();
+    }
+
+    async function getFile(filePath) {
+      const data = await ghRequest('GET', `/repos/${OWNER}/${REPO}/contents/${filePath}`);
+      return {
+        content: decodeURIComponent(escape(atob(data.content.replace(/\n/g, '')))),
+        sha: data.sha
+      };
+    }
+
+    async function putFile(filePath, content, sha, message) {
+      const encoded = btoa(unescape(encodeURIComponent(content)));
+      const body = { message, content: encoded, branch: BRANCH };
+      if (sha) body.sha = sha;
+      await ghRequest('PUT', `/repos/${OWNER}/${REPO}/contents/${filePath}`, body);
+    }
+
+    async function uploadImage(filename, arrayBuffer) {
+      let sha = null;
       try {
-        const res = await fetch('posts.json?t=' + Date.now());
-        postsData = await res.json();
+        const existing = await ghRequest('GET', `/repos/${OWNER}/${REPO}/contents/images/${filename}`);
+        sha = existing.sha;
+      } catch (e) {}
+
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      const base64 = btoa(binary);
+
+      const body = { message: `上传图片 ${filename}`, content: base64, branch: BRANCH };
+      if (sha) body.sha = sha;
+      await ghRequest('PUT', `/repos/${OWNER}/${REPO}/contents/images/${filename}`, body);
+    }
+
+    // ── 读取帖子 ──
+    async function loadPosts() {
+      showStatus('正在加载…', 'loading');
+      try {
+        const { content, sha } = await getFile('posts.json');
+        postsData = JSON.parse(content);
+        postsSha  = sha;
         renderPostsList();
+        document.getElementById('status').style.display = 'none';
       } catch (e) {
-        postsData = { posts: [] };
-        renderPostsList();
+        showStatus('加载失败：' + e.message, 'error');
       }
     }
 
@@ -340,36 +450,32 @@
       btn.textContent = '发布中…';
 
       try {
-        // 上传图片
+        showStatus('正在上传图片…', 'loading');
+
         const imageNames = [];
-        if (selectedImages.length > 0) {
-          const formData = new FormData();
-          selectedImages.forEach(f => formData.append('images', f));
-          const res = await fetch('/api/images', { method: 'POST', body: formData });
-          const data = await res.json();
-          if (!data.ok) throw new Error(data.error);
-          imageNames.push(...data.files);
+        for (const file of selectedImages) {
+          const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+          const buffer = await file.arrayBuffer();
+          await uploadImage(safeName, buffer);
+          imageNames.push(safeName);
         }
 
-        // 确定类型
+        showStatus('正在保存帖子…', 'loading');
+
         let type = 'text';
         if (imageNames.length && content) type = 'both';
         else if (imageNames.length)       type = 'image';
 
-        // 新帖子
         const maxId = postsData.posts.reduce((m, p) => Math.max(m, parseInt(p.id) || 0), 0);
         postsData.posts.unshift({ id: String(maxId + 1), date, title, content, images: imageNames, type });
 
-        // 保存 posts.json
-        const res = await fetch('/api/posts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(postsData)
-        });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error);
+        await putFile('posts.json', JSON.stringify(postsData, null, 2), postsSha, '发布新帖子');
 
-        showStatus('✓ 发布成功！', 'success');
+        // 刷新 SHA
+        const { sha } = await getFile('posts.json');
+        postsSha = sha;
+
+        showStatus('✓ 发布成功！Netlify 正在自动部署，约 1 分钟后线上生效。', 'success');
         clearForm();
         renderPostsList();
 
@@ -386,21 +492,17 @@
       if (!confirm('确认删除这条帖子？')) return;
       postsData.posts.splice(i, 1);
       try {
-        const res = await fetch('/api/posts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(postsData)
-        });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error);
+        await putFile('posts.json', JSON.stringify(postsData, null, 2), postsSha, '删除帖子');
+        const { sha } = await getFile('posts.json');
+        postsSha = sha;
         renderPostsList();
-        showStatus('已删除', 'success');
+        showStatus('已删除，约 1 分钟后线上生效', 'success');
       } catch (e) {
         showStatus('删除失败：' + e.message, 'error');
       }
     }
 
-    // ── 清空 ──
+    // ── 工具 ──
     function clearForm() {
       document.getElementById('post-title').value = '';
       document.getElementById('post-content').value = '';
@@ -410,25 +512,21 @@
       document.getElementById('image-previews').innerHTML = '';
     }
 
-    function showStatus(msg, type) {
-      const el = document.getElementById('status');
-      el.innerHTML = type === 'success'
-        ? `${msg} <a href="index.html" style="color:inherit;text-decoration:underline;margin-left:8px;">查看首页 →</a>`
-        : escapeHtml(msg);
-      el.className = type;
-      el.style.display = 'block';
-      if (type === 'success') setTimeout(() => el.style.display = 'none', 6000);
-    }
-
     function updateCount(el) {
       document.getElementById('char-count').textContent = el.value.length;
+    }
+
+    function showStatus(msg, type) {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = type;
+      el.style.display = 'block';
+      if (type === 'success') setTimeout(() => el.style.display = 'none', 8000);
     }
 
     function escapeHtml(s) {
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
-
-    loadPosts();
   </script>
 </body>
 </html>
