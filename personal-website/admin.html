@@ -213,6 +213,33 @@
     .form-actions { display: flex; gap: 12px; margin-top: 40px; }
     .divider { border: none; border-top: 1px solid var(--border); margin: 56px 0; }
 
+    /* ── Draft banner ── */
+    #draft-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border: 1px solid rgba(255,200,80,0.2);
+      background: rgba(255,200,80,0.04);
+      margin-bottom: 32px;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+    #draft-banner span { color: var(--text-muted); }
+    #draft-banner .draft-actions { display: flex; gap: 16px; }
+    #draft-banner button {
+      background: none; border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer; padding: 0;
+      transition: color 0.15s;
+    }
+    #draft-banner .btn-load { color: #ccc; }
+    #draft-banner .btn-load:hover { color: #fff; }
+    #draft-banner .btn-discard { color: #555; }
+    #draft-banner .btn-discard:hover { color: var(--error); }
+
     /* ── Posts list ── */
     #posts-section h2 {
       font-size: 10px;
@@ -253,6 +280,14 @@
     <!-- 发帖表单 -->
     <div id="form-section">
 
+      <div id="draft-banner" style="display:none">
+        <span id="draft-info"></span>
+        <div class="draft-actions">
+          <button class="btn-load" onclick="loadDraft()">载入草稿</button>
+          <button class="btn-discard" onclick="clearDraft()">丢弃</button>
+        </div>
+      </div>
+
       <div class="form-group">
         <label>日期</label>
         <input type="date" id="post-date">
@@ -284,6 +319,7 @@
 
       <div class="form-actions">
         <button class="btn btn-primary" id="publish-btn" onclick="publishPost()">发布</button>
+        <button class="btn btn-ghost" onclick="saveDraft()">保存草稿</button>
         <button class="btn btn-ghost" onclick="clearForm()">清空</button>
       </div>
 
@@ -309,6 +345,51 @@
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('post-date').value = today;
 
+    // ── 草稿 ──
+    const DRAFT_KEY = 'admin_draft';
+
+    function saveDraft() {
+      const draft = {
+        date: document.getElementById('post-date').value,
+        title: document.getElementById('post-title').value,
+        content: document.getElementById('post-content').value,
+        savedAt: new Date().toISOString()
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      showStatus('草稿已保存（图片需重新选择）', 'success');
+    }
+
+    function loadDraft() {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (draft.date) document.getElementById('post-date').value = draft.date;
+      document.getElementById('post-title').value = draft.title || '';
+      const ta = document.getElementById('post-content');
+      ta.value = draft.content || '';
+      updateCount(ta);
+      document.getElementById('draft-banner').style.display = 'none';
+      showStatus('草稿已载入（图片需重新选择）', 'success');
+    }
+
+    function clearDraft() {
+      localStorage.removeItem(DRAFT_KEY);
+      document.getElementById('draft-banner').style.display = 'none';
+    }
+
+    function checkDraft() {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      try {
+        const draft = JSON.parse(raw);
+        const date = draft.date || '未知日期';
+        document.getElementById('draft-info').textContent = `有未完成的草稿（${date}）`;
+        document.getElementById('draft-banner').style.display = 'flex';
+      } catch (e) {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    }
+
     // ── 初始化 ──
     (function init() {
       const token = localStorage.getItem('gh_token');
@@ -316,6 +397,7 @@
         document.getElementById('setup').style.display = 'none';
         document.getElementById('form-section').style.display = 'block';
         loadPosts();
+        checkDraft();
       }
     })();
 
@@ -477,6 +559,7 @@
         postsSha = sha;
 
         showStatus('✓ 发布成功！Netlify 正在自动部署，约 1 分钟后线上生效。', 'success');
+        clearDraft();
         clearForm();
         renderPostsList();
 
