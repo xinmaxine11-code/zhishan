@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>记录 · 枝山</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html" class="site-name">枝山</a>
+      <div class="nav-right">
+        <a href="record.html">记录</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="record-page">
+
+    <!-- 输入区 -->
+    <section class="record-input">
+      <div class="ri-row">
+        <input type="date" id="record-date">
+        <div class="rating-group">
+          <button class="rating-btn" data-r="A">A</button>
+          <button class="rating-btn" data-r="B">B</button>
+          <button class="rating-btn" data-r="C">C</button>
+        </div>
+      </div>
+      <div class="ri-row">
+        <input type="text" id="record-text" maxlength="30" placeholder="今天一句话，不超过三十字">
+        <span class="char-count" id="char-count">0 / 30</span>
+      </div>
+      <div class="ri-row ri-actions">
+        <button id="record-submit" class="submit-btn">记录</button>
+        <span id="record-msg"></span>
+      </div>
+    </section>
+
+    <!-- 日历区 -->
+    <section class="record-calendar">
+      <div class="cal-header">
+        <button class="cal-nav" id="prev-month">‹</button>
+        <span class="cal-title" id="cal-title"></span>
+        <button class="cal-nav" id="next-month">›</button>
+      </div>
+      <div class="cal-weekdays">
+        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-detail" id="cal-detail"></div>
+    </section>
+
+  </main>
+  <script src="record.js"></script>
+  <script>
+    (function () {
+      let count = 0, timer;
+      document.querySelector('.site-name').addEventListener('click', function (e) {
+        e.preventDefault();
+        count++;
+        clearTimeout(timer);
+        if (count >= 5) { count = 0; window.location.href = 'admin.html'; return; }
+        timer = setTimeout(() => { count = 0; window.location.href = 'index.html'; }, 600);
+      });
+    })();
+  </script>
+</body>
+</html>
