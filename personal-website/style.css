@@ -184,6 +184,278 @@ main {
   padding: 40px 0;
 }
 
+/* ── Record Page ── */
+.record-page {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 72px 40px 120px;
+}
+
+.record-input {
+  margin-bottom: 72px;
+  padding-bottom: 56px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ri-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.ri-actions { align-items: center; }
+
+#record-date {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  padding: 6px 0;
+  outline: none;
+  cursor: pointer;
+  color-scheme: dark;
+}
+
+.rating-group {
+  display: flex;
+  gap: 8px;
+}
+
+.rating-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rating-btn:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.rating-btn.selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+#record-text {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'EB Garamond', serif;
+  font-size: 18px;
+  line-height: 1.6;
+  padding: 6px 0;
+  outline: none;
+}
+
+#record-text::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.char-count {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.submit-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#record-msg {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ── Calendar ── */
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.cal-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+}
+
+.cal-nav {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 10px;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.cal-nav:hover { color: var(--accent); }
+
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 10px;
+}
+
+.cal-weekdays span {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+}
+
+.cal-day.empty { pointer-events: none; }
+
+.day-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.day-num {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--text-muted);
+}
+
+.day-rating {
+  display: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--bg);
+}
+
+/* 有记录的日子 */
+.cal-day.has-entry { cursor: pointer; }
+
+.cal-day.has-entry .day-circle {
+  border: 1px solid var(--border);
+}
+
+.cal-day.has-entry .day-circle:hover {
+  background: var(--accent);
+}
+
+.cal-day.has-entry .day-circle:hover .day-num { display: none; }
+.cal-day.has-entry .day-circle:hover .day-rating { display: block; }
+
+/* 今天 */
+.cal-day.is-today .day-num { color: var(--accent); }
+
+/* 已选中 */
+.cal-day.is-selected .day-circle {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.cal-day.is-selected .day-circle .day-num { display: none; }
+.cal-day.is-selected .day-circle .day-rating { display: block; }
+
+/* 详情 */
+.cal-detail {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  transition: opacity 0.2s;
+}
+
+.detail-date {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+.detail-sep { color: var(--border); }
+
+.detail-rating {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+
+.detail-text {
+  font-family: 'EB Garamond', serif;
+  font-size: 19px;
+  color: var(--text);
+  font-style: italic;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   header {
@@ -191,7 +463,8 @@ main {
   }
 
   main,
-  .about-page {
+  .about-page,
+  .record-page {
     padding: 48px 20px 80px;
   }
 
